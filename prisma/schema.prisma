@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Plant {
+  id                   String     @id @default(cuid())
+  name                 String
+  nickname             String?
+  species              String?
+  location             String?
+  coverPhotoUrl        String?
+  wateringIntervalDays Int        @default(7)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  logs                 LogEntry[]
+}
+
+model PlantAnalysis {
+  id          String   @id @default(uuid())
+  plantId     String
+  imageUrl    String
+  diagnosis   String
+  confidence  Float
+  suggestions String
+  createdAt   DateTime @default(now())
+
+  plant Plant @relation(fields: [plantId], references: [id])
+}
+
+enum LogType {
+  WATERING
+  HEALTH
+  NOTE
+  FERTILIZE
+}
+
+enum HealthStatus {
+  HEALTHY
+  ATTENTION
+  SICK
+}
+
+model LogEntry {
+  id           String        @id @default(cuid())
+  plantId      String
+  plant        Plant         @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  type         LogType
+  note         String?
+  healthStatus HealthStatus?
+  photoUrl     String?
+  createdAt    DateTime      @default(now())
+
+  @@index([plantId, createdAt])
+}

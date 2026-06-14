@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌿 Diario de Plantas (Plant Diary)
 
-## Getting Started
+Aplicacao web para monitorar a **rega** e a **saude** das suas plantas. Cadastre plantas, registre regas e anotacoes com fotos, veja a timeline de cada planta e receba lembretes de quando regar.
 
-First, run the development server:
+## Funcionalidades
+
+- Cadastro de plantas (nome, especie, local, foto de capa e intervalo de rega).
+- Registro de eventos: rega, saude, anotacao e adubacao, com foto opcional.
+- Botao rapido "Reguei agora".
+- Calculo automatico da proxima rega e status (atrasada / regar hoje / em dia).
+- Dashboard com cards e destaque das plantas que precisam de agua.
+- Lembretes via notificacoes do navegador (Web Notifications API).
+- Timeline cronologica do historico de cada planta.
+
+## Stack
+
+- [Next.js 16](https://nextjs.org/) (App Router) + React 19 + TypeScript
+- Tailwind CSS v4
+- Prisma 6 + SQLite (arquivo local)
+- Upload de fotos em `public/uploads`
+
+## Requisitos
+
+- **Node.js 20.18+** (o projeto foi configurado com a v20.18.3).
+- npm
+
+> Observacao: o Prisma 7 exige Node 20.19+. Por isso este projeto fixa o Prisma 6, compativel com Node 20.18.
+
+## Como rodar
 
 ```bash
+# 1. Instalar dependencias (gera o Prisma Client automaticamente)
+npm install
+
+# 2. Criar o banco e aplicar a migration (gera prisma/dev.db)
+npx prisma migrate dev
+
+# 3. (Opcional) Popular com dados de exemplo
+npm run db:seed
+
+# 4. Iniciar em desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variaveis de ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Arquivo `.env` (ja incluido para desenvolvimento):
 
-## Learn More
+```
+DATABASE_URL="file:./dev.db"
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Estrutura principal
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+prisma/
+  schema.prisma        # modelos Plant e LogEntry
+  seed.mjs             # dados de exemplo
+src/
+  app/
+    page.tsx           # dashboard
+    actions.ts         # server actions (criar planta, registrar log, regar, excluir)
+    plants/new/        # cadastro de planta
+    plants/[id]/       # detalhe + timeline
+  components/          # PlantCard, LogTimeline, AddLogForm, WaterButton, etc.
+  lib/
+    db.ts              # Prisma Client
+    watering.ts        # calculo de proxima rega e status
+    uploads.ts         # salvar imagens enviadas
+    format.ts          # formatacao de datas e rotulos
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts uteis
 
-## Deploy on Vercel
+- `npm run dev` — servidor de desenvolvimento
+- `npm run build` / `npm start` — build e producao
+- `npm run db:migrate` — aplicar migrations
+- `npm run db:seed` — popular dados de exemplo
+- `npm run db:studio` — abrir o Prisma Studio
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Proximos passos (fora do MVP)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Login / multiusuario
+- Sensores de umidade (IoT)
+- Push notifications em background (PWA / service worker)
+- Deploy (Vercel + Postgres/Supabase) e armazenamento de fotos em nuvem
