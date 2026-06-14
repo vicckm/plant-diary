@@ -15,10 +15,12 @@ export default async function HomePage() {
     include: { logs: { orderBy: { createdAt: "desc" } } },
   });
 
-  const reminders: ReminderPlant[] = plants
+  const plantsWithWatering = plants
     .map((plant) => ({ plant, info: getWateringInfo(plant, plant.logs) }))
+    .sort((a, b) => a.info.daysUntilNext - b.info.daysUntilNext);
+
+  const reminders: ReminderPlant[] = plantsWithWatering
     .filter(({ info }) => needsWaterNow(info))
-    .sort((a, b) => a.info.daysUntilNext - b.info.daysUntilNext)
     .map(({ plant, info }) => ({
       id: plant.id,
       name: plant.name,
@@ -54,7 +56,7 @@ export default async function HomePage() {
       ) : (
         <section aria-label="Lista de plantas">
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {plants.map((plant) => (
+            {plantsWithWatering.map(({ plant }) => (
               <li key={plant.id}>
                 <PlantCard plant={plant} />
               </li>
